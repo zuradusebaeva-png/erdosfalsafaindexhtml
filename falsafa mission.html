@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UniQuiz — Bilimingni sinab ko‘r</title>
+<!-- QR-код локал равишда генерация қилиниши учун енгил библиотека -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--ink:#20243a;--muted:#6e7488;--accent:#6558e8;--accent2:#eeeaff;--line:#e6e8f0;--green:#16845b;--red:#c53d54}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{background:linear-gradient(120deg,#25264f,#6558e8);color:#fff;padding:22px max(20px,calc((100% - 1100px)/2));}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.25rem}.logo{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#fff;color:#6558e8;font-weight:900}
+.hero{max-width:1100px;margin:26px auto 6px;padding:0 20px 22px}.hero h1{font-size:clamp(1.8rem,5vw,2.8rem);line-height:1.12;margin:0 0 12px}.hero p{max-width:650px;color:#e5e4ff;margin:0}
+main{max-width:1100px;margin:24px auto;padding:0 20px 50px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}.tab{border:1px solid var(--line);background:#fff;border-radius:12px;padding:11px 16px;cursor:pointer;font-weight:700;color:var(--muted)}.tab.active{background:var(--accent);color:white;border-color:var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}.stat,.panel,.feature{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 4px 16px #25264f08}.stat small{color:var(--muted)}.stat strong{display:block;font-size:1.6rem;margin-top:4px}.panel h2{margin:0 0 6px;font-size:1.35rem}.sub{color:var(--muted);margin:0 0 18px}.hidden{display:none!important}
+.question{padding:16px 0;border-top:1px solid var(--line)}.question:first-of-type{border-top:0}.question p{font-weight:700;margin:0 0 10px}.answers{display:grid;gap:8px}.answer{display:flex;gap:10px;align-items:flex-start;padding:11px 12px;border:1px solid var(--line);border-radius:12px;cursor:pointer}.answer:has(input:checked){border-color:var(--accent);background:var(--accent2)}.answer input{margin-top:5px;accent-color:var(--accent)}button.primary,button.secondary{border:0;border-radius:12px;padding:12px 17px;font-weight:750;cursor:pointer}.primary{background:var(--accent);color:#fff}.secondary{background:var(--accent2);color:var(--accent)}button:disabled{opacity:.55;cursor:not-allowed}.result{margin-top:16px;padding:14px;border-radius:12px;background:#f0f8f4;border:1px solid #d5eee0}.result.bad{background:#fff2f3;border-color:#f4d5da}
+.cross-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,.85fr);gap:24px;align-items:start}.gridwrap{overflow:auto;padding:4px}.crossgrid{display:grid;grid-template-columns:repeat(9,minmax(28px,40px));grid-auto-rows:minmax(28px,40px);gap:3px;width:max-content;margin:0 auto}.cell{position:relative;border:1px solid #d9dbea;background:#fff;border-radius:5px;width:100%;height:100%;min-width:28px;min-height:28px;text-align:center;font-size:1rem;font-weight:750;text-transform:uppercase;padding:0;color:var(--ink)}.cell.block{background:#333653;border-color:#333653}.cell:focus{outline:3px solid #aaa3ff;z-index:1}.clues{padding:0;margin:8px 0 16px;list-style:none}.clues li{padding:10px 0;border-bottom:1px solid var(--line);color:var(--muted)}.clues button{border:0;background:transparent;color:var(--ink);text-align:left;font:inherit;cursor:pointer;width:100%}.clues button strong{color:var(--accent);margin-right:6px}.small{font-size:.9rem;color:var(--muted)}.feedback{margin-top:12px;font-weight:700}.features{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}.admin-options{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}#admin label{font-weight:650}.feature .emoji{font-size:1.5rem}.feature h3{margin:8px 0 4px}.feature p{margin:0;color:var(--muted);font-size:.92rem}
+
+/* QR-код учун махсус стиллар */
+.qr-section{margin-top:30px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.qr-box{background:#fff;padding:12px;border:1px solid var(--line);border-radius:16px;box-shadow:0 4px 16px #25264f08;display:inline-block}
+#qrcode img, #qrcode canvas{display:block;margin:0 auto}
+
+footer{text-align:center;color:var(--muted);padding:25px}
+@media(max-width:700px){.admin-options{grid-template-columns:1fr!important}.stats{gap:8px}.stat{padding:12px}.stat strong{font-size:1.25rem}.cross-layout{grid-template-columns:1fr}.features{grid-template-columns:1fr}.panel{padding:15px}.hero{margin-top:20px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span class="logo">U</span> UniQuiz</div>
+  <div class="hero"><h1>Bilimingni sinab ko‘r.<br>Har kuni bir qadam oldinga.</h1><p>Universitet talabalari uchun testlar, krossvordlar va natijalarni kuzatish — barchasi bir joyda.</p></div>
+</header>
+<main>
+  <div class="stats">
+    <div class="stat"><small>Test natijasi</small><strong id="bestScore">—</strong></div>
+    <div class="stat"><small>To‘g‘ri javoblar</small><strong id="correctCount">0</strong></div>
+    <div class="stat"><small>Bajarilgan mashqlar</small><strong id="completedCount">0</strong></div>
+  </div>
+  <nav class="tabs" aria-label="Bo‘limlar">
+    <button class="tab active" data-tab="home">Bosh sahifa</button>
+    <button class="tab" data-tab="test">📝 Testlar</button>
+    <button class="tab" data-tab="crossword">🔤 Krossvord</button>
+    <button class="tab" data-tab="admin">⚙️ Admin paneli</button>
+  </nav>
+  <section id="home" class="panel">
+    <h2>Xush kelibsan!</h2><p class="sub">Mashq turini tanla va bilimlaringni tekshir. Bu — saytning birinchi ishlaydigan namunasi.</p>
+    <div class="features">
+      <article class="feature"><div class="emoji">📝</div><h3>Bilim testi</h3><p>Falsafa fanidan 20 ta boshlang‘ich savolga javob ber va natijangni bilib ol.</p><p style="margin-top:12px"><button class="primary" data-goto="test">Testni boshlash</button></p></article>
+      <article class="feature"><div class="emoji">🔤</div><h3>Mini krossvord</h3><p>Krossvorddagi atamalarni topib, bilimlaringni mustahkamla.</p><p style="margin-top:12px"><button class="primary" data-goto="crossword">Krossvordni ochish</button></p></article>
+      <article class="feature"><div class="emoji">📈</div><h3>Natijalar</h3><p>Test ballari ushbu brauzerda saqlanadi. Keyingi versiyada profil ham qo‘shamiz.</p></article>
+    </div>
+  </section>
+  <section id="test" class="panel hidden">
+    <h2>Testlar</h2><p class="sub">Fan bo‘yicha savollarga javob ber. Har bir savol uchun bitta javobni tanla.</p>
+    <form id="quizForm"><div id="quizQuestions"></div>
+      <button class="primary" type="submit">Javoblarni tekshirish</button>
+      <button class="secondary" type="button" id="resetQuiz">Qayta boshlash</button>
+    </form><div id="quizResult" aria-live="polite"></div>
+  </section>
+  <section id="admin" class="panel hidden">
+    <h2>Admin paneli — savol qo‘shish</h2>
+    <p class="sub">Fan nomini, savolni va to‘rtta javob variantini kiriting. To‘g‘ri javobni tanlab, saqlang.</p>
+    <form id="addQuestionForm">
+      <label for="subjectInput">Fan nomi</label>
+      <input id="subjectInput" name="subject" required maxlength="80" placeholder="Masalan: Iqtisodiyot" style="display:block;width:100%;padding:12px;margin:6px 0 14px;border:1px solid var(--line);border-radius:10px;font:inherit">
+      <label for="questionInput">Savol matni</label>
+      <textarea id="questionInput" name="question" required maxlength="500" rows="3" placeholder="Savolni shu yerga yozing" style="display:block;width:100%;padding:12px;margin:6px 0 14px;border:1px solid var(--line);border-radius:10px;font:inherit"></textarea>
+      <div class="admin-options">
+        <label>A javobi<input name="option0" required maxlength="250" style="display:block;width:100%;padding:10px;margin:5px 0 12px;border:1px solid var(--line);border-radius:10px;font:inherit"></label>
+        <label>B javobi<input name="option1" required maxlength="250" style="display:block;width:100%;padding:10px;margin:5px 0 12px;border:1px solid var(--line);border-radius:10px;font:inherit"></label>
+        <label>C javobi<input name="option2" required maxlength="250" style="display:block;width:100%;padding:10px;margin:5px 0 12px;border:1px solid var(--line);border-radius:10px;font:inherit"></label>
+        <label>D javobi<input name="option3" required maxlength="250" style="display:block;width:100%;padding:10px;margin:5px 0 12px;border:1px solid var(--line);border-radius:10px;font:inherit"></label>
+      </div>
+      <label for="correctInput">To‘g‘ri javob</label>
+      <select id="correctInput" name="correct" style="display:block;width:100%;padding:12px;margin:6px 0 16px;border:1px solid var(--line);border-radius:10px;font:inherit"><option value="0">A javobi</option><option value="1">B javobi</option><option value="2">C javobi</option><option value="3">D javobi</option></select>
+      <button class="primary" type="submit">Savolni saqlash</button>
+      <button class="secondary" type="reset">Formani tozalash</button>
+    </form>
+    <div id="adminMessage" class="result hidden" role="status"></div>
+    <h3 style="margin-top:24px">Qo‘shilgan savollar</h3><p class="small">Savolni o‘chirish uchun uning yonidagi “O‘chirish” tugmasini bosing.</p>
+    <div id="adminQuestionList"></div>
+  </section>
+  <section id="crossword" class="panel hidden">
+    <h2>Mini krossvord</h2><p class="sub">Falsafa faniga oid 6 ta savolni yech. Bitta javob — FALSAFA — oldindan yozilgan. Qolgan javoblarni topib kataklarga yoz.</p>
+    <div class="cross-layout">
+      <div class="gridwrap"><div id="crossGrid" class="crossgrid" aria-label="Krossvord kataklari"></div><p class="small">Maslahat: savol raqamini bosing, so‘ng birinchi katakdan yozishni boshlang.</p></div>
+      <div><h3>Gorizontal</h3><ul class="clues" id="acrossClues"></ul><h3>Vertikal</h3><ul class="clues" id="downClues"></ul><button class="primary" id="checkCross">Krossvordni tekshirish</button><button class="secondary" id="clearCross">Tozalash</button><div id="crossFeedback" class="feedback" aria-live="polite"></div></div>
+    </div>
+  </section>
+
+  <!-- QR-код заблокирован и отображается локально -->
+  <div class="qr-section">
+    <div class="qr-box">
+      <div id="qrcode"></div>
+    </div>
+    <p class="small">Telefoningiz orqali skaner qilib saytni oching</p>
+  </div>
+</main>
+<footer>UniQuiz · Falsafa fanidan 20 ta test va 6 savolli krossvord.</footer>
+
+<script>
+const tabs=[...document.querySelectorAll('.tab')];
+function showTab(id){tabs.forEach(t=>t.classList.toggle('active',t.dataset.tab===id));['home','test','crossword','admin'].forEach(x=>document.getElementById(x).classList.toggle('hidden',x!==id));if(id==='test')renderQuiz();if(id==='admin')renderAdminList();}
+tabs.forEach(t=>t.addEventListener('click',()=>showTab(t.dataset.tab)));
+document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.goto)));
+let completed=0,correctTotal=0,best=Number(localStorage.getItem('uniquiz-best')||0);
+function updateStats(){document.getElementById('bestScore').textContent=best?best+'%':'—';document.getElementById('correctCount').textContent=correctTotal;document.getElementById('completedCount').textContent=completed;}
+updateStats();
+const defaultQuestions=[
+  {id:'phil1',subject:'Falsafa',question:'Falsafa nimani o‘rganadi?',options:['Faqat tirik organizmlarni','Borliq, bilish, tafakkur va inson hayotining umumiy masalalarini','Faqat davlat qonunlarini','Faqat iqtisodiy jarayonlarni'],answer:1},
+  {id:'phil2',subject:'Falsafa',question:'“Falsafa” so‘zi qadimgi yunon tilida qanday ma’noni anglatadi?',options:['Tabiat kuchi','Hikmatga muhabbat','Davlat boshqaruvi','Ilmiy tajriba'],answer:1},
+  {id:'phil3',subject:'Falsafa',question:'Falsafaning borliq haqidagi ta’limoti nima deb ataladi?',options:['Etika','Estetika','Ontologiya','Mantiq'],answer:2},
+  {id:'phil4',subject:'Falsafa',question:'Bilish va bilimning manbalari hamda imkoniyatlarini o‘rganuvchi falsafiy soha qaysi?',options:['Gnoseologiya','Aksiologiya','Siyosatshunoslik','Geografiya'],answer:0},
+  {id:'phil5',subject:'Falsafa',question:'Mantiq nimani o‘rganadi?',options:['Go‘zallik qonunlarini','To‘g‘ri fikrlash shakllari va qonunlarini','Jamiyat tarixinigina','Tirik tabiatni'],answer:1},
+  {id:'phil6',subject:'Falsafa',question:'Axloq, ezgulik va yovuzlik masalalarini o‘rganuvchi soha qaysi?',options:['Etika','Ontologiya','Fizika','Estetika'],answer:0},
+  {id:'phil7',subject:'Falsafa',question:'Go‘zallik va san’atni falsafiy jihatdan o‘rganuvchi soha nima?',options:['Gnoseologiya','Etika','Estetika','Mantiq'],answer:2},
+  {id:'phil8',subject:'Falsafa',question:'Dunyoqarash nima?',options:['Faqat insonning kasbi','Insonning dunyo, hayot va o‘z o‘rni haqidagi umumiy qarashlari','Faqat ilmiy atamalar ro‘yxati','Biror mamlakat xaritasi'],answer:1},
+  {id:'phil9',subject:'Falsafa',question:'Mifologik dunyoqarash asosan nimaga tayanadi?',options:['Afsona va obrazli tasavvurlarga','Faqat matematik hisob-kitoblarga','Laboratoriya tajribalariga','Huquqiy hujjatlarga'],answer:0},
+  {id:'phil10',subject:'Falsafa',question:'Diniy dunyoqarashning markazida nima turadi?',options:['Faqat texnologiya','E’tiqod va ilohiy kuchlar haqidagi tasavvurlar','Faqat bozor munosabatlari','Geometrik shakllar'],answer:1},
+  {id:'phil11',subject:'Falsafa',question:'Ilmiy dunyoqarash nimaga asoslanadi?',options:['Dalil, kuzatish va mantiqiy tahlilga','Faqat mish-mishlarga','Faqat tushlarga','Faqat urf-odatlarga'],answer:0},
+  {id:'phil12',subject:'Falsafa',question:'Qadimgi yunon faylasufi Suqrot qaysi usuli bilan mashhur?',options:['Savol-javob orqali fikrlashga undash','Elektr toki haqidagi kashfiyot','Nisbiylik nazariyasi','Evolyutsiya nazariyasi'],answer:0},
+  {id:'phil13',subject:'Falsafa',question:'“Men hech narsani bilmasligimni bilaman” degan fikr qaysi faylasuf bilan bog‘lanadi?',options:['Suqrot','Aristotel','Konfutsiy','Dekart'],answer:0},
+  {id:'phil14',subject:'Falsafa',question:'Aflotun (Platon) falsafasida qaysi g‘oya muhim o‘rin tutadi?',options:['G‘oyalar olami haqidagi ta’limot','Faqat pul muomalasi','Atom elektr stansiyalari','Kompyuter dasturlash'],answer:0},
+  {id:'phil15',subject:'Falsafa',question:'Aristotel kim bo‘lgan?',options:['Qadimgi yunon faylasufi','Rim imperatori','Zamonaviy fizik','O‘rta asr rassomi'],answer:0},
+  {id:'phil16',subject:'Falsafa',question:'Abu Nasr Forobiy qaysi sohada tanilgan?',options:['Falsafa va ilm-fan','Faqat dengizchilik','Faqat futbol','Faqat kino san’ati'],answer:0},
+  {id:'phil17',subject:'Falsafa',question:'Abu Ali ibn Sino kim sifatida mashhur?',options:['Faylasuf va tabib','Faqat sarkarda','Faqat me’mor','Faqat sayyoh'],answer:0},
+  {id:'phil18',subject:'Falsafa',question:'Dialektika nimani o‘rganishda muhim yondashuv hisoblanadi?',options:['Narsa va hodisalarning o‘zaro bog‘liqligi hamda rivojlanishini','Faqat so‘zlarning imlosini','Faqat musiqiy ohanglarni','Faqat pul birliklarini'],answer:0},
+  {id:'phil19',subject:'Falsafa',question:'Aksiologiya qaysi masalalarni o‘rganadi?',options:['Qadriyatlar va ularning mohiyatini','Faqat yulduzlar harakatini','Faqat grammatikani','Faqat iqlimni'],answer:0},
+  {id:'phil20',subject:'Falsafa',question:'Falsafiy tafakkurning asosiy xususiyatlaridan biri qaysi?',options:['Savol berish, tahlil qilish va asosli xulosa chiqarish','Har qanday fikrni tekshirmasdan qabul qilish','Faqat yodlash bilan cheklanish','Dalillardan qochish'],answer:0}
+];
+const QUESTION_KEY='uniquiz-added-questions-v1';
+function getAddedQuestions(){try{const value=JSON.parse(localStorage.getItem(QUESTION_KEY)||'[]');return Array.isArray(value)?value:[];}catch{return [];}}
+function saveAddedQuestions(list){localStorage.setItem(QUESTION_KEY,JSON.stringify(list));}
+function allQuestions(){return [...defaultQuestions,...getAddedQuestions()];}
+function renderQuiz(){const box=document.getElementById('quizQuestions');box.innerHTML='';const qs=allQuestions();if(!qs.length){box.textContent='Hozircha savollar yo‘q. Admin panelidan savol qo‘sh.';return;}qs.forEach((q,i)=>{const section=document.createElement('div');section.className='question';const title=document.createElement('p');title.textContent=`${i+1}. [${q.subject}] ${q.question}`;section.appendChild(title);const answersBox=document.createElement('div');answersBox.className='answers';q.options.forEach((opt,j)=>{const label=document.createElement('label');label.className='answer';const input=document.createElement('input');input.type='radio';input.name='q'+i;input.value=String(j);const span=document.createElement('span');span.textContent=String.fromCharCode(65+j)+'. '+opt;label.append(input,span);answersBox.appendChild(label);});section.appendChild(answersBox);box.appendChild(section);});document.getElementById('quizResult').textContent='';}
+document.getElementById('quizForm').addEventListener('submit',e=>{e.preventDefault();const qs=allQuestions();let score=0,answered=0;qs.forEach((q,i)=>{const chosen=document.querySelector(`input[name="q${i}"]:checked`);if(chosen){answered++;if(Number(chosen.value)===q.answer)score++;}});const box=document.getElementById('quizResult');if(answered<qs.length){box.className='result bad';box.textContent=`Hali ${qs.length-answered} ta savolga javob bermading. Barcha savollarni belgila.`;return;}const pct=Math.round(score/qs.length*100);completed++;correctTotal+=score;if(pct>best){best=pct;localStorage.setItem('uniquiz-best',best);}updateStats();box.className='result';box.textContent=`Natijang: ${score}/${qs.length} (${pct}%). `+(pct>=80?'Ajoyib natija! Davom et!':pct>=60?'Yaxshi boshlanish. Xatolarni ko‘rib chiq.':'Mashq qilishda davom et — keyingi safar yaxshiroq bo‘ladi.');});
+document.getElementById('resetQuiz').addEventListener('click',()=>{document.getElementById('quizForm').reset();document.getElementById('quizResult').innerHTML='';});
+const addForm=document.getElementById('addQuestionForm');
+addForm.addEventListener('submit',e=>{e.preventDefault();const fd=new FormData(addForm);const item={id:'q'+Date.now(),subject:String(fd.get('subject')).trim(),question:String(fd.get('question')).trim(),options:[0,1,2,3].map(i=>String(fd.get('option'+i)).trim()),answer:Number(fd.get('correct'))};if(!item.subject||!item.question||item.options.some(x=>!x)){return;}const list=getAddedQuestions();list.push(item);saveAddedQuestions(list);addForm.reset();const msg=document.getElementById('adminMessage');msg.className='result';msg.textContent='Savol saqlandi! Endi Testlar bo‘limida ko‘rinadi.';renderAdminList();});
+function renderAdminList(){const root=document.getElementById('adminQuestionList');root.innerHTML='';const list=getAddedQuestions();if(!list.length){root.textContent='Hali yangi savol qo‘shilmagan.';return;}list.forEach((q,index)=>{const item=document.createElement('div');item.className='question';const p=document.createElement('p');p.textContent=`${index+1}. [${q.subject}] ${q.question}`;const small=document.createElement('p');small.className='small';small.textContent='To‘g‘ri javob: '+String.fromCharCode(65+q.answer)+'. '+q.options[q.answer];const del=document.createElement('button');del.type='button';del.className='secondary';del.textContent='O‘chirish';del.addEventListener('click',()=>{if(!confirm('Ushbu savolni o‘chirmoqchimisiz?'))return;saveAddedQuestions(getAddedQuestions().filter(x=>x.id!==q.id));renderAdminList();});item.append(p,small,del);root.appendChild(item);});}
+
+/* Compact crossword: all words cross at least one shared cell. */
+const words=[
+  {n:1,dir:'across',r:4,c:0,answer:'FALSAFA',clue:'Borliq, bilish va inson hayotining umumiy masalalarini o‘rganuvchi fan.'},
+  {n:2,dir:'down',r:0,c:4,answer:'ETIKA',clue:'Axloq, ezgulik va yovuzlikni o‘rganuvchi falsafiy soha.'},
+  {n:3,dir:'across',r:6,c:0,answer:'MANTIQ',clue:'To‘g‘ri fikrlash shakllari va qonunlarini o‘rganuvchi fan.'},
+  {n:4,dir:'down',r:1,c:8,answer:'AQL',clue:'Fikrlash va mulohaza yuritish qobiliyati.'},
+  {n:5,dir:'across',r:8,c:0,answer:'SUQROT',clue:'Savol-javob usuli bilan mashhur qadimgi yunon faylasufi.'},
+  {n:6,dir:'down',r:3,c:6,answer:'BORLIQ',clue:'Mavjud bo‘lgan barcha narsa va hodisalarning umumiy nomi.'}
+];
+const size=10, cellMap=new Map(), starts={};
+function posKey(r,c){return r+','+c}
+words.forEach(w=>{starts[w.n]=posKey(w.r,w.c);[...w.answer].forEach((ch,i)=>{const r=w.r+(w.dir==='down'?i:0),c=w.c+(w.dir==='across'?i:0),k=posKey(r,c);if(!cellMap.has(k))cellMap.set(k,{r,c,expected:ch,nums:[]});cellMap.get(k).nums.push(w.n);});});
+const grid=document.getElementById('crossGrid');grid.style.gridTemplateColumns=`repeat(${size}, minmax(28px,40px))`;
+const inputs=new Map();
+for(let r=0;r<size;r++)for(let c=0;c<size;c++){const k=posKey(r,c),cell=document.createElement('input');cell.className='cell'+(cellMap.has(k)?'':' block');cell.maxLength=1;cell.autocomplete='off';cell.setAttribute('aria-label',`Qator ${r+1}, ustun ${c+1}`);if(!cellMap.has(k)){cell.disabled=true;}else{cell.dataset.key=k;cellMap.get(k).input=cell;inputs.set(k,cell);cell.addEventListener('input',()=>{cell.value=cell.value.toLocaleUpperCase('uz-UZ').replace(/[^A-ZА-ЯЎҒҚҲЁ]/g, '').slice(-1);});}grid.appendChild(cell);}
+ [...'FALSAFA'].forEach((ch,i)=>{const input=inputs.get(posKey(4,i));if(input){input.value=ch;input.readOnly=true;input.title='Oldindan yozilgan javob';input.style.background='#eeeaff';input.style.color='#6558e8';}});
+
+function renderClues(dir,id){const ul=document.getElementById(id);words.filter(w=>w.dir===dir).forEach(w=>{const li=document.createElement('li'),btn=document.createElement('button');btn.innerHTML=`<strong>${w.n}.</strong>${w.clue} <span class="small">(${w.answer.length} harf)</span>`;btn.addEventListener('click',()=>{const first=inputs.get(starts[w.n]);if(first)first.focus();});li.appendChild(btn);ul.appendChild(li);});}
+renderClues('across','acrossClues');renderClues('down','downClues');
+document.getElementById('checkCross').addEventListener('click',()=>{let filled=0,correct=0;cellMap.forEach(v=>{const val=(v.input.value||'').toLocaleUpperCase('uz-UZ');if(val)filled++;if(val===v.expected)correct++;});const total=cellMap.size,box=document.getElementById('crossFeedback');if(filled<total){box.textContent=`${filled}/${total} katak to‘ldirilgan. Yana ${total-filled} ta katak qoldi.`;return;}completed++;correctTotal+=correct;updateStats();if(correct===total){box.textContent=`Ajoyib! Krossvord to‘g‘ri yechildi: ${correct}/${total} katak.`;}else{box.textContent=`${correct}/${total} katak to‘g‘ri. Javoblarni yana bir tekshir.`;}});
+document.getElementById('clearCross').addEventListener('click',()=>{inputs.forEach(i=>{if(!i.readOnly)i.value='';});document.getElementById('crossFeedback').textContent='';});
+
+// Автоматическая и автономная генерация QR-кода при загрузке
+window.addEventListener('load', function() {
+  const urlToEncode = window.location.href.startsWith('http') ? window.location.href : 'https://uniquiz.uz';
+  new QRCode(document.getElementById("qrcode"), {
+    text: urlToEncode,
+    width: 130,
+    height: 130,
+    colorDark : "#20243a",
+    colorLight : "#ffffff",
+    correctLevel : QRCode.CorrectLevel.H
+  });
+});
+</script>
+</body>
+</html>
