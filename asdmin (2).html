@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UniQuiz — Bilimingni sinab ko‘r</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg: #f7f4ff;
+      --ink: #302747;
+      --muted: #786e8e;
+      --lav: #b8a2f5;
+      --purple: #7456cf;
+      --line: #e7defb;
+      --glass: rgba(255, 255, 255, .68);
+      --shadow: 0 18px 55px #7456cf18
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(ellipse at 12% 4%, #e4d8ff 0, transparent 34%), radial-gradient(ellipse at 90% 20%, #d8e6ff 0, transparent 32%), var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+      color: var(--ink);
+      min-height: 100vh
+    }
+
+    button,
+    input,
+    select {
+      font: inherit
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s, background .2s
+    }
+
+    button:hover {
+      transform: translateY(-2px)
+    }
+
+    .app {
+      max-width: 1200px;
+      margin: auto;
+      padding: 22px
+    }
+
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 26px
+    }
+
+    .brand {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      font-weight: 850;
+      font-size: 1.35rem
+    }
+
+    .logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #9b7aea, #d2c5ff);
+      display: grid;
+      place-items: center;
+      color: white;
+      box-shadow: 0 8px 25px #8d72dc55
+    }
+
+    .pill {
+      border: 1px solid #e5dcf7;
+      background: #ffffff9c;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-size: .85rem
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #ffffffb5;
+      background: linear-gradient(120deg, #ffffffb8, #eee7ffb5);
+      backdrop-filter: blur(18px);
+      border-radius: 30px;
+      padding: clamp(24px, 5vw, 50px);
+      box-shadow: var(--shadow);
+      animation: rise .6s ease both
+    }
+
+    .hero:after {
+      content: '✦';
+      position: absolute;
+      font-size: 190px;
+      color: #bca9f52a;
+      right: 4%;
+      top: -35px;
+      pointer-events: none
+    }
+
+    .eyebrow {
+      color: var(--purple);
+      font-weight: 750;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      font-size: .75rem
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.8rem);
+      line-height: 1.05;
+      max-width: 680px;
+      margin: 14px 0
+    }
+
+    .hero p {
+      max-width: 630px;
+      color: var(--muted);
+      line-height: 1.7
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 23px
+    }
+
+    .primary,
+    .secondary,
+    .soft {
+      border-radius: 14px;
+      padding: 12px 17px;
+      font-weight: 700
+    }
+
+    .primary {
+      color: white;
+      background: linear-gradient(135deg, #8465dc, #a38bed);
+      box-shadow: 0 9px 22px #8465dc35
+    }
+
+    .secondary {
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--ink)
+    }
+
+    .soft {
+      background: #eee8ff;
+      color: #674cbd
+    }
+
+    .section {
+      margin-top: 30px;
+      animation: rise .55s ease both
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 10px;
+      margin-bottom: 15px
+    }
+
+    .section h2 {
+      margin: 0;
+      font-size: 1.35rem
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: .92rem;
+      margin-top: 6px
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 15px
+    }
+
+    .card {
+      background: var(--glass);
+      backdrop-filter: blur(16px);
+      border: 1px solid #fff;
+      border-radius: 22px;
+      padding: 21px;
+      box-shadow: var(--shadow);
+      transition: transform .25s, border .25s
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: #cdbdf7
+    }
+
+    .subject-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: #eee7ff;
+      font-size: 1.5rem;
+      margin-bottom: 15px
+    }
+
+    .card h3 {
+      margin: 0 0 8px
+    }
+
+    .card p {
+      color: var(--muted);
+      font-size: .9rem;
+      line-height: 1.55
+    }
+
+    .card .actions {
+      margin-top: 15px
+    }
+
+    .statrow {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 18px
+    }
+
+    .stat {
+      background: #ffffff85;
+      border: 1px solid #fff;
+      border-radius: 18px;
+      padding: 15px
+    }
+
+    .stat strong {
+      font-size: 1.4rem;
+      display: block
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: .82rem
+    }
+
+    .quote {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: center
+    }
+
+    .quote blockquote {
+      font-size: 1.1rem;
+      line-height: 1.55;
+      margin: 10px 0
+    }
+
+    .quote .langs {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap
+    }
+
+    .nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 22px 0
+    }
+
+    .nav button {
+      border-radius: 12px;
+      background: #ffffff9c;
+      border: 1px solid #e9e1fa;
+      padding: 10px 13px;
+      color: #6d6187;
+      font-weight: 650
+    }
+
+    .nav button.active {
+      background: #e8dfff;
+      color: #5d43ae;
+      border-color: #cdbcf6
+    }
+
+    .page {
+      display: none
+    }
+
+    .page.active {
+      display: block;
+      animation: rise .3s ease
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      margin: 12px 0
+    }
+
+    .field label {
+      font-size: .87rem;
+      font-weight: 700
+    }
+
+    .field input,
+    .field select {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 12px;
+      color: var(--ink);
+      width: 100%
+    }
+
+    .notice {
+      background: #fff8df;
+      border: 1px solid #f5e4a9;
+      border-radius: 14px;
+      padding: 12px 14px;
+      color: #7e6524;
+      font-size: .86rem;
+      line-height: 1.5
+    }
+
+    .qrow {
+      padding: 17px 0;
+      border-bottom: 1px solid var(--line)
+    }
+
+    .qrow:last-child {
+      border-bottom: 0
+    }
+
+    .qrow h4 {
+      margin: 0 0 10px
+    }
+
+    .option {
+      display: block;
+      margin: 7px 0;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: #fff;
+      cursor: pointer
+    }
+
+    .option:has(input:checked) {
+      border-color: #9d83eb;
+      background: #f1ecff
+    }
+
+    .option input {
+      margin-right: 8px;
+      accent-color: #8062d8
+    }
+
+    .timer {
+      font-size: 1.4rem;
+      font-weight: 850;
+      color: #6e50c6
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse
+    }
+
+    .table th,
+    .table td {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      font-size: .9rem
+    }
+
+    .table th {
+      color: var(--muted)
+    }
+
+    .qrbox {
+      background: white;
+      padding: 14px;
+      border-radius: 18px;
+      display: inline-block;
+      min-width: 150px;
+      min-height: 150px;
+      display: grid;
+      place-items: center
+    }
+
+    .cross-grid {
+      display: grid;
+      grid-template-columns: repeat(10, minmax(0, 1fr));
+      gap: 4px;
+      max-width: 430px
+    }
+
+    .cross-grid input {
+      width: 100%;
+      aspect-ratio: 1;
+      text-align: center;
+      text-transform: uppercase;
+      border: 1px solid #ddd1fb;
+      border-radius: 6px;
+      min-width: 0;
+      background: #fff
+    }
+
+    .cross-grid input.prefilled {
+      background: #e8dfff;
+      font-weight: 800;
+      color: #6545bd
+    }
+
+    .foot {
+      color: var(--muted);
+      text-align: center;
+      padding: 28px 8px;
+      font-size: .82rem
+    }
+
+    .hidden {
+      display: none !important
+    }
+
+    .two {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px
+    }
+
+    .tag {
+      font-size: .75rem;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: #ece5ff;
+      color: #6c4dbd;
+      font-weight: 700
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(12px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    @media(max-width:780px) {
+      .grid {
+        grid-template-columns: 1fr
+      }
+
+      .two {
+        grid-template-columns: 1fr
+      }
+
+      .quote {
+        display: block
+      }
+
+      .statrow {
+        grid-template-columns: 1fr 1fr 1fr
+      }
+
+      .top {
+        align-items: flex-start
+      }
+
+      .hero:after {
+        right: -30px
+      }
+
+      .app {
+        padding: 14px
+      }
+
+      .table {
+        min-width: 500px
+      }
+
+      .tablewrap {
+        overflow: auto
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <header class="top">
+      <div class="brand">
+        <div class="logo">UQ</div>
+        <div>UniQuiz <div style="font-size:.72rem;color:var(--muted);font-weight:600">Bilim • Raqobat • Rivojlanish</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center"><span class="pill" id="studentBadge">Mehmon</span><button
+          class="secondary" onclick="showPage('profile')">Profil ↗</button></div>
+    </header>
+    <section class="hero">
+      <div class="eyebrow">Bilimingni sinab ko‘r</div>
+      <h1>Bilim — sening eng kuchli <span style="color:#8061d7">darajang.</span></h1>
+      <p>Fanlarni o‘rgan, testlarni yech, krossvordni to‘ldir va do‘sting bilan 1 vs 1 bellash. Har bir urinish — o‘sish uchun yangi imkoniyat.</p>
+      <div class="actions"><button class="primary" onclick="showPage('subjects')">Testni boshlash →</button><button
+          class="secondary" onclick="showPage('duel')">⚡ 1 vs 1 bellashuv</button></div>
+      <div class="statrow">
+        <div class="stat"><strong id="statStudents">0/100</strong><span>Ro‘yxatdan o‘tgan</span></div>
+        <div class="stat"><strong id="statTests">70</strong><span>Test savollari</span></div>
+        <div class="stat"><strong id="statRank">—</strong><span>Sening darajang</span></div>
+      </div>
+    </section>
+    <nav class="nav" id="nav"><button class="active" data-page="home">Asosiy</button><button
+        data-page="subjects">Fanlar</button><button data-page="duel">1 vs 1</button><button
+        data-page="leaderboard">Baholar / Reyting</button><button data-page="offers">Talab va taklif</button><button
+        data-page="qr">QR kod</button><button data-page="profile">Profil</button><button data-page="admin">Admin paneli</button></nav>
+    <div class="page active" id="home">
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2>Fanlar majmuasi</h2>
+            <div class="sub">Admin tomonidan faollashtirilgan fanlar ro'yxati.</div>
+          </div><button class="soft" onclick="showPage('subjects')">Barchasi →</button>
+        </div>
+        <div class="grid" id="homeSubjects"></div>
+      </section>
+      <section class="section">
+        <div class="card quote">
+          <div>
+            <div class="eyebrow">✦ Kunlik iqtibos</div>
+            <blockquote id="quoteText">“Bilim — insonning eng katta boyligi.”</blockquote>
+            <div class="langs"><button class="soft" onclick="setQuote('uz')">O‘zbekcha</button><button class="soft"
+                onclick="setQuote('ru')">Русский</button><button class="soft" onclick="setQuote('en')">English</button>
+            </div>
+          </div>
+          <div style="font-size:3rem">❝</div>
+        </div>
+      </section>
+    </div>
+    <div class="page" id="subjects">
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2>Fanlar va topshiriqlar</h2>
+            <div class="sub">Har bir fan: testlar va 10 savolli krossvord.</div>
+          </div>
+        </div>
+        <div class="grid" id="allSubjects"></div>
+        <div class="card" id="quizPanel" style="margin-top:18px;display:none">
+          <div class="section-head">
+            <div>
+              <h2 id="quizTitle">Test</h2>
+              <div class="sub" id="quizSub">35 savol</div>
+            </div>
+            <div class="timer" id="timer">20:00</div>
+          </div>
+          <form id="quizForm">
+            <div id="questions"></div>
+            <div class="actions"><button type="submit" class="primary">Javoblarni topshirish</button><button
+                type="button" class="secondary" onclick="closeQuiz()">Bekor qilish</button></div>
+          </form>
+          <div id="quizResult"></div>
+        </div>
+        <div class="card" id="crossPanel" style="margin-top:18px;display:none">
+          <h2 id="crossTitle">Krossvord</h2>
+          <p class="sub">10 ta savol. Birinchi javob namunaviy tarzda oldindan yozilgan.</p>
+          <div class="field"><label>1. Falsafada borliq haqidagi ta’limot (namuna)</label><input value="ONTOLOGIYA" readonly></div>
+          <div id="crossClues"></div>
+          <div class="field"><label>Javoblarni kiriting (10 ta katakli javoblar)</label>
+            <div class="cross-grid" id="crossGrid"></div>
+          </div><button class="primary" onclick="checkCrossword()">Krossvordni tekshirish</button>
+          <div id="crossResult" class="sub"></div>
+        </div>
+      </section>
+    </div>
+    <div class="page" id="duel">
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2>⚡ 1 vs 1 — Bilimlar jangi</h2>
+            <div class="sub">Raqib bilan bir xil testda bellash. Har bir o‘yin uchun bir martalik kod.</div>
+          </div><span class="tag">BETA</span>
+        </div>
+        <div class="two">
+          <div class="card">
+            <div class="subject-icon">🏁</div>
+            <h3>Yangi bellashuv ochish</h3>
+            <p>Fan va vaqtni tanlang. Do‘stingiz QR kodni skanerlab yoki kod orqali qo‘shiladi.</p>
+            <div class="field"><label>Fan</label><select id="duelSubject">
+              </select></div><button class="primary" onclick="createDuel()">Bellashuv yaratish</button>
+            <div id="duelCreated" style="margin-top:15px"></div>
+          </div>
+          <div class="card">
+            <div class="subject-icon">🔐</div>
+            <h3>Bellashuvga qo‘shilish</h3>
+            <div class="field"><label>Bir martalik parol</label><input id="duelCodeInput" placeholder="Masalan: UQ-4K8P"></div><button class="secondary" onclick="joinDuel()">Kod bilan qo‘shilish</button>
+            <div id="duelJoinResult" class="sub"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div class="page" id="leaderboard">
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2>🏆 Baholar va reyting (Katta ekran)</h2>
+            <div class="sub">Barcha talabalarning Supabase bazasidagi umumiy ballari.</div>
+          </div><button class="primary" onclick="renderLeaderboard()">Markaziy bazadan yangilash ↻</button>
+        </div>
+        <div class="card tablewrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Talaba</th>
+                <th>Guruh</th>
+                <th>Jami Ball</th>
+                <th>Daraja</th>
+              </tr>
+            </thead>
+            <tbody id="leaderRows">
+              <tr><td colspan="5">Ma'lumotlar yuklanmoqda...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="sub" style="margin-top:10px">Darajalar: 0–19 Boshlovchi · 20–49 Izlanuvchi · 50–79 Bilimdon · 80–100 Usta.</div>
+      </section>
+    </div>
+    <div class="page" id="offers">
+      <section class="section">
+        <h2>Talab va taklif</h2>
+        <p class="sub">Platformani yaxshilash uchun fikringizni qoldiring.</p>
+        <div class="card">
+          <form id="feedbackForm">
+            <div class="field"><label>Fikr turi</label><select id="feedbackType">
+                <option>Taklif</option>
+                <option>Muammo haqida xabar</option>
+                <option>Yangi fan so‘rovi</option>
+              </select></div>
+            <div class="field"><label>Xabaringiz</label><input id="feedbackText" required placeholder="Masalan, tarix fanini qo‘shish..."></div><button class="primary">Yuborish</button>
+          </form>
+          <div id="feedbackList" class="sub"></div>
+        </div>
+      </section>
+    </div>
+    <div class="page" id="qr">
+      <section class="section">
+        <h2>QR kodlar</h2>
+        <p class="sub">Asosiy QR kod sayt manzilini ochadi. Katta ekranga ushbu QR kodni ko‘rsatishingiz mumkin.</p>
+        <div class="two">
+          <div class="card">
+            <h3>Asosiy sayt QR kodi</h3>
+            <div class="field"><label>Sayt manzili</label><input id="siteUrl" placeholder="https://merry-liger-dd7e08.netlify.app" value="https://merry-liger-dd7e08.netlify.app"></div><button class="primary" onclick="makeMainQR()">QR kod yaratish</button>
+            <div id="mainQr" class="qrbox" style="margin-top:14px"></div>
+            <p class="sub">Talabalar telefon orqali skanerlab darhol testga kirishadi.</p>
+          </div>
+          <div class="card">
+            <h3>1 vs 1 QR kodi</h3>
+            <div id="duelQr" class="qrbox">Avval bellashuv yarating</div>
+            <p class="sub">QR ichida bellashuvga qo‘shilish havolasi va kod bo‘ladi.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div class="page" id="profile">
+      <section class="section">
+        <h2>Talaba profili</h2>
+        <p class="sub">QR kod orqali kirgan talaba ism va guruhini kiritadi.</p>
+        <div class="card" style="max-width:600px">
+          <form id="profileForm">
+            <div class="field"><label>To‘liq ism</label><input id="studentName" required placeholder="Ism Familiya"></div>
+            <div class="field"><label>Guruh raqami</label><input id="studentGroup" required placeholder="Masalan: TR-102"></div><button class="primary">Profilni saqlash</button>
+          </form>
+          <div id="profileMsg" class="sub"></div>
+          <div class="actions"><button class="secondary" onclick="clearProfile()">Profildan chiqish</button></div>
+        </div>
+      </section>
+    </div>
+    <div class="page" id="admin">
+      <section class="section">
+        <h2>🛠 Admin paneli</h2>
+        <p class="sub">Test vaqtini, talabalar limitini, fanlarni va admin qurilmasini boshqarish.</p>
+        <div id="adminLogin" class="card" style="max-width:500px">
+          <div class="notice">Parol: <b>Lavanda2026!</b></div>
+          <form id="adminForm">
+            <div class="field"><label>Admin paroli</label><input id="adminPassword" type="password" required placeholder="Parol"></div><button class="primary">Kirish</button>
+          </form>
+          <div id="adminError" class="sub" style="margin-top:10px"></div>
+        </div>
+        <div id="adminTools" class="card hidden">
+          <div class="two">
+            <div class="field"><label>Test vaqti (daqiqalar)</label><input type="number" id="settingMinutes" min="1" max="180" value="20"></div>
+            <div class="field"><label>Talabalar limiti</label><input type="number" id="settingLimit" min="1" max="10000" value="100"></div>
+          </div>
+          <button class="primary" onclick="saveSettings()">Sozlamalarni saqlash</button>
+          <div id="settingsMsg" class="sub"></div>
+
+          <!-- Fanlarni hamma uchun yoqish/o'chirish bo'limi -->
+          <div style="margin-top: 18px; padding: 14px; background: #faf5ff; border-radius: 14px; border: 1px solid #d9cbff;">
+            <h4 style="margin: 0 0 6px 0; color: #5d43ae;">📚 Fanlarni hamma uchun faollashtirish</h4>
+            <p class="sub" style="margin-bottom: 10px;">Qaysi fanlar talabalar uchun test topshirishga ochiq bo'lishini belgilang:</p>
+            <div id="adminSubjectToggles" style="margin: 12px 0; display: grid; gap: 8px;"></div>
+            <button class="primary" onclick="saveSubjectSettings()">Fan sozlamalarini saqlash</button>
+            <div id="subjectMsg" class="sub" style="margin-top: 6px;"></div>
+          </div>
+
+          <!-- Asosiy admin qurilmasini tanlash bo'limi -->
+          <div style="margin-top: 18px; padding: 14px; background: #f4f0ff; border-radius: 14px; border: 1px solid #d9cbff;">
+            <h4 style="margin: 0 0 6px 0; color: #5d43ae;">⭐ Asosiy admin qurilmasi</h4>
+            <p class="sub" style="margin-bottom: 10px;">Agar bu qurilma asosiy qilib belgilansa, boshqa qurilmalardan kelgan adminlik so‘rovlari faqat shu yerda tasdiqlanadi.</p>
+            <button class="secondary" id="mainDeviceBtn" onclick="toggleMainDevice()">Qurilma holatini tekshirish...</button>
+            <div id="mainDeviceStatus" class="sub" style="margin-top: 6px;"></div>
+          </div>
+
+          <hr style="border:0;border-top:1px solid var(--line);margin:22px 0">
+          <h3>Ro‘yxatdan o‘tgan talabalar</h3>
+          <div class="tablewrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Ism</th>
+                  <th>Guruh</th>
+                  <th>Jami ball</th>
+                  <th>Amal</th>
+                </tr>
+              </thead>
+              <tbody id="adminStudents"></tbody>
+            </table>
+          </div>
+          <div class="actions"><button class="secondary" onclick="exportData()">Ma’lumotlarni eksport qilish (JSON)</button><button class="secondary" onclick="resetScores()">Ballarni tozalash</button></div>
+        </div>
+      </section>
+    </div>
+    <footer class="foot">UniQuiz · O‘rgan. Sinab ko‘r. Raqobatlash. O‘s.</footer>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://hyqqewciraarrczwppbc.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable__ZO0cxvXl9Ml9i-JsrdzJQ_jW1Np-Mo';
+    const dbClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+    if (!localStorage.getItem('uq_device_id')) {
+      localStorage.setItem('uq_device_id', 'dev_' + Math.random().toString(36).substr(2, 9));
+    }
+    const myDeviceId = localStorage.getItem('uq_device_id');
+    let adminChannel = null;
+    let pendingRequestDevice = null;
+
+    const subjects = {
+      philosophy: {
+        name: 'Falsafa', icon: '🧠', desc: 'Borliq, bilish, tafakkur va falsafiy maktablar.', qs: [
+          ['Falsafa so‘zining kelib chiqishidagi asosiy ma’no?', ['Tabiatni o‘lchash', 'Donolikni sevish', 'Davlatni boshqarish', 'San’at yaratish'], 1],
+          ['Borliq haqidagi falsafiy ta’limot nima deyiladi?', ['Aksiologiya', 'Etika', 'Ontologiya', 'Estetika'], 2],
+          ['Bilish nazariyasi qanday ataladi?', ['Sotsiologiya', 'Gnoseologiya', 'Logika', 'Antropologiya'], 1],
+          ['Axloq va xulq me’yorlarini o‘rganuvchi soha?', ['Estetika', 'Ontologiya', 'Metafizika', 'Etika'], 3],
+          ['Go‘zallik va san’atni o‘rganuvchi soha?', ['Etika', 'Mantiq', 'Estetika', 'Epistemologiya'], 2],
+          ['Mantiqning asosiy vazifasi nima?', ['To‘g‘ri fikrlash qonunlarini o‘rganish', 'Iqlimni o‘rganish', 'Til tarixini yozish', 'Savdo qilish'], 0],
+          ['Dialektika nimani ta’kidlaydi?', ['Hamma narsa o‘zgarmasligini', 'Faqat hissiyotni', 'Rivojlanish va qarama-qarshiliklarni', 'Faqat xotirani'], 2],
+          ['Suqrot qaysi usul bilan mashhur?', ['Eksperiment', 'Mayevtika va savol-javob', 'Geometriya', 'Astronomiya'], 1],
+          ['Aflotun asos solgan maktab?', ['Litsey', 'Akademiya', 'Stoa', 'Bog‘ maktabi'], 1],
+          ['Arastu kimning shogirdi bo‘lgan?', ['Suqrotning', 'Demokritning', 'Aflotunning', 'Epikurning'], 2],
+          ['Demokrit ta’limotida olam nimadan tuzilgan?', ['Faqat suvdan', 'Atomlardan', 'G‘oyalardan', 'Raqamlardan'], 1],
+          ['Empirizm bilish manbai sifatida nimaga urg‘u beradi?', ['Faqat tug‘ma g‘oya', 'Tajriba', 'Vahiygina', 'Tasodif'], 1],
+          ['Ratsionalizm qaysi omilni ustun qo‘yadi?', ['Aql va tafakkur', 'Sezgi', 'Odat', 'Jismoniy kuch'], 0],
+          ['Skeptitsizmning asosiy yondashuvi?', ['Har narsaga ko‘r-ko‘rona ishonish', 'Faqat an’ana', 'Shubha va tanqidiy tekshirish', 'Hissiyotdan qochish'], 2],
+          ['Aksiologiya nimani o‘rganadi?', ['Borliqni', 'Qadriyatlarni', 'Tilni', 'Iqtisodni'], 1],
+          ['Falsafiy antropologiya nimani o‘rganadi?', ['Insonni', 'Faqat hayvonlarni', 'Sayyoralarni', 'Davlat budjetini'], 0],
+          ['Materializmga ko‘ra birlamchi asos nima?', ['Mutlaq ruh', 'Til', 'Moddiy borliq', 'San’at'], 2],
+          ['Idealizm qaysi omilni birlamchi deb qarashi mumkin?', ['Faqat materiya', 'Iqlim', 'G‘oya yoki ruhiylik', 'Texnologiya'], 2],
+          ['Pragmatizm g‘oyalarni ko‘proq nima bilan baholaydi?', ['Amaliy natijasi bilan', 'Yoshi bilan', 'Muallif millati bilan', 'Hajmi bilan'], 0],
+          ['Ekzistensializm markazida nima turadi?', ['Faqat tabiat qonunlari', 'Inson mavjudligi va tanlovi', 'Faqat iqtisod', 'Til grammatikasi'], 1],
+          ['Konfutsiy ta’limotida muhim qadriyat?', ['Faqat boylik', 'Yakkalanish', 'Burch va insoniylik', 'Tasodif'], 2],
+          ['Buddaviylikdagi markaziy tushunchalardan biri?', ['Azob va undan xalos bo‘lish', 'Atom massasi', 'Davlat shakli', 'Bozor narxi'], 0],
+          ['Ibn Sino qaysi sohalarda mashhur?', ['Faqat rassomchilik', 'Falsafa va tibbiyot', 'Faqat dengizchilik', 'Faqat musiqa'], 1],
+          ['Forobiy qanday nom bilan tanilgan?', ['Birinchi sayyoh', 'Ikkinchi muallim', 'Buyuk dengizchi', 'Rim imperatori'], 1],
+          ['Beruniy ilmiy yondashuvda nimaga katta ahamiyat bergan?', ['Faqat rivoyatga', 'Taxminga', 'Kuzatish va dalilga', 'She’riyatga'], 2],
+          ['Mantiqiy xulosa chiqarishning bir turi?', ['Dekoratsiya', 'Deduksiya', 'Migratsiya', 'Inflyatsiya'], 1],
+          ['Induksiya qanday yo‘nalishda xulosa qiladi?', ['Alohida holatlardan umumiyga', 'Umumiydan alohidaga', 'Kelajakdan o‘tmishga', 'Savoldan hissiyotga'], 0],
+          ['Haqiqat nima bilan tekshirilishi mumkin?', ['Mashhurlik bilan', 'Ovoz balandligi bilan', 'Dalil va amaliyot bilan', 'Taxmin bilan'], 2],
+          ['Falsafada metod nima?', ['Bilish va tadqiq qilish usuli', 'Tayyor xulosa', 'Qonun moddasi', 'Tarixiy sana'], 0],
+          ['Monizm qanday qarash?', ['Cheksiz asoslarni tan olish', 'Borliqning yagona asosini tan olish', 'Hech narsani tan olmaslik', 'Faqat ikki asos'], 1],
+          ['Dualizm nechta asosni tan oladi?', ['Bir', 'Ikki', 'Uch', 'O‘nta'], 1],
+          ['Determinizm nimani ta’kidlaydi?', ['Hamma narsa sababsizligini', 'Faqat tasodifni', 'Hodisalar sababiy bog‘langanini', 'Bilim imkonsizligini'], 2],
+          ['Erkin iroda muammosi nimaga oid?', ['Tanlov va mas’uliyatga', 'Geografiyaga', 'Matematik formulaga', 'San’at texnikasiga'], 0],
+          ['Ijtimoiy falsafa nimani tahlil qiladi?', ['Faqat shaxsiy xotirani', 'Jamiyat va uning rivojini', 'Faqat kimyoni', 'Faqat musiqani'], 1],
+          ['Tanqidiy fikrlash nimani talab qiladi?', ['Har xabarni darhol qabul qilish', 'Faqat yodlash', 'Dalillarni tahlil qilish', 'Savol bermaslik'], 2]
+        ]
+      },
+      tourism: {
+        name: 'Turizm nazariy fanlari', icon: '🌍', desc: 'Turizm tushunchalari, xizmatlar, yo‘nalishlar va boshqaruv.', qs: [
+          ['Turizmning umumiy mazmuni qaysi?', ['Faqat ishga qatnash', 'Doimiy ko‘chib o‘tish', 'Doimiy yashash joyidan tashqariga vaqtincha safar', 'Faqat uyda dam olish'], 2],
+          ['Ichki turizm nima?', ['Mamlakat ichidagi safarlar', 'Faqat chet elliklar safari', 'Faqat xalqaro parvoz', 'Doimiy migratsiya'], 0],
+          ['Chiquvchi turizm (outbound) nimani anglatadi?', ['Chet elliklarning mamlakatga kelishi', 'Mamlakat rezidentlarining chetga safarlari', 'Shahar ichidagi sayr', 'Ishga borish'], 1],
+          ['Kiruvchi turizm (inbound) nima?', ['Mahalliy aholining chetga chiqishi', 'Doimiy ko‘chish', 'Boshqa mamlakatlardan tashrif buyuruvchilar', 'Faqat tranzit yuk'], 2],
+          ['Turistik mahsulot ko‘pincha nimadan tashkil topadi?', ['Transport, joylashuv, ovqatlanish va tajriba', 'Faqat suvenir', 'Faqat samolyot', 'Faqat xarita'], 0],
+          ['Mehmonxonaning asosiy vazifasi?', ['Pasport berish', 'Vaqtincha joylashtirish xizmati', 'Viza tasdiqlash', 'Valyuta chiqarish'], 1],
+          ['Gidning vazifasi nima?', ['Samolyotni boshqarish', 'Mehmonxona qurish', 'Tashrif buyuruvchilarga ma’lumot berib yo‘naltirish', 'Chegara nazorati'], 2],
+          ['MICE turizmi qaysi faoliyatlarni qamrab oladi?', ['Faqat tog‘ sayri', 'Uchrashuv, rag‘batlantiruvchi safar, konferensiya, ko‘rgazma', 'Faqat ziyorat', 'Faqat plyaj'], 1],
+          ['Ekoturizmning muhim tamoyili?', ['Chiqindini ko‘paytirish', 'Tabiatni asrash va mahalliy jamoaga hurmat', 'Yovvoyi tabiatni buzish', 'Faqat tezlik'], 1],
+          ['Madaniy turizm nimaga qaratilgan?', ['Faqat xarid', 'Faqat sport', 'Meros, san’at va mahalliy madaniyatni bilish', 'Faqat davolanish'], 2],
+          ['Ziyorat turizmi nimaga asoslanadi?', ['Diniy va muqaddas joylarga tashrif', 'Faqat biznes uchrashuv', 'Faqat ovchilik', 'Faqat ko‘ngilochar park'], 0],
+          ['Turistik mavsumiylik nima?', ['Narx doimiyligi', 'Talabning yil fasllariga qarab o‘zgarishi', 'Xizmat yo‘qligi', 'Doimiy migratsiya'], 1],
+          ['Turizm infratuzilmasiga nima kiradi?', ['Yo‘l, transport, aloqa va joylashtirish tizimlari', 'Faqat tarixiy rivoyatlar', 'Faqat ob-havo', 'Faqat kiyim'], 0],
+          ['Barqaror turizm maqsadi?', ['Faqat tashriflar sonini oshirish', 'Iqtisodiy, ijtimoiy va ekologik muvozanat', 'Mahalliy aholini chetlatish', 'Tabiatdan cheksiz foydalanish'], 1],
+          ['Turizm marketingida segmentatsiya nima?', ['Bozorni o‘xshash ehtiyojli guruhlarga ajratish', 'Xonalarni bo‘yash', 'Yo‘l qurish', 'Biletni tekshirish'], 0],
+          ['Turistik destinatsiya nima?', ['Faqat turfirmadagi xodim', 'Sayyoh tashrif buyuradigan hudud yoki manzil', 'Faqat transport vositasi', 'Faqat bron kodi'], 1],
+          ['Paket-tur nima?', ['Bir nechta turistik xizmat birlashtirilgan taklif', 'Faqat bir tomonlama bilet', 'Faqat restoran menyusi', 'Pasport turi'], 0],
+          ['Bron qilish (booking) nima?', ['Xizmatni bekor bilish', 'Xizmatni oldindan band qilish', 'Sayohatni sug‘urtalash', 'Ekskursiya o‘tkazish'], 1],
+          ['Turistik sug‘urta nimaga yordam beradi?', ['Viza kafolatiga', 'Ob-havoni o‘zgartirishga', 'Safardagi ayrim moliyaviy xatarlarni qoplashga', 'Bilet narxini doim tushirishga'], 2],
+          ['Travel agent odatda nima qiladi?', ['Turistik xizmatlarni sotish va bronlashga ko‘maklashadi', 'Mehmonxona quradi', 'Qonun qabul qiladi', 'Samolyot ishlab chiqaradi'], 0],
+          ['Turoperatorning vazifasi?', ['Faqat biletni tekshirish', 'Turistik paketlarni shakllantirish va tashkil etish', 'Faqat gidlik qilish', 'Faqat valyuta ayirboshlash'], 1],
+          ['Turizm klasteri nima?', ['Bog‘langan korxona va tashkilotlar hamkorligi', 'Bitta mehmonxona xonasi', 'Sayyohlar ro‘yxati', 'Faqat aeroport'], 0],
+          ['5A modelidagi “Attractions” nimani anglatadi?', ['Turar joy', 'Jozibadorliklar va diqqatga sazovor joylar', 'Transport chiptasi', 'Sug‘urta'], 1],
+          ['5A modelidagi “Accommodation” nima?', ['Jozibadorlik', 'Joylashtirish', 'Faoliyat', 'Axborot'], 1],
+          ['Turizmda xizmat sifati nima bilan bog‘liq?', ['Faqat bino balandligi', 'Faqat reklama hajmi', 'Mijoz kutishi va olgan xizmatining mosligi', 'Faqat narx qimmatligi'], 2],
+          ['Turist va ekskursant o‘rtasidagi keng tarqalgan farq?', ['Tunab qolish holati va safar davomiyligi', 'Faqat yoshi', 'Fuqaroligi', 'Til bilishi'], 0],
+          ['Turizm statistikasi nima uchun kerak?', ['Faqat bezak uchun', 'Oqimlar, xarajat va tendensiyalarni tahlil qilish', 'Ob-havoni boshqarish', 'Mehmonxona rangini tanlash'], 1],
+          ['Turizmning iqtisodiy ta’siri?', ['Faqat xarajat keltiradi', 'Daromad va ish o‘rinlarini yaratishi mumkin', 'Hech qanday ta’siri yo‘q', 'Faqat importni to‘xtatadi'], 1],
+          ['Turizmning salbiy ekologik ta’siriga misol?', ['Madaniy almashinuv', 'Mahalliy ish o‘rinlari', 'Chiqindi va tabiiy resurslarga bosim', 'Merosni tiklash'], 2],
+          ['Mehmondo‘stlik (hospitality) nimani anglatadi?', ['Mehmonni kutib olish va xizmat ko‘rsatish madaniyati', 'Faqat transport jadvali', 'Faqat viza siyosati', 'Faqat xarita tuzish'], 0],
+          ['Turistik marshrut nima?', ['Safar davomida rejalashtirilgan yo‘nalish', 'Faqat mehmonxona nomi', 'Faqat pasport', 'Faqat hisob-faktura'], 0],
+          ['Turizmda SWOT tahlili nimani baholaydi?', ['Faqat foyda', 'Faqat xodim yoshi', 'Kuchli va zaif tomonlar, imkoniyat va tahdidlar', 'Faqat iqlim'], 2],
+          ['Inbound va outbound turizm farqi nimada?', ['Tashrif buyuruvchining qaysi tomonga harakatida', 'Faqat transport turida', 'Faqat narxda', 'Farqi yo‘q'], 0],
+          ['Turizmda raqamli texnologiyalar misoli?', ['Faqat qog‘oz xarita', 'Onlayn bron va elektron chiptalar', 'Faqat og‘zaki e’lon', 'Faqat pochta markasi'], 1],
+          ['Turistik resursga misol?', ['Faqat bank hisobi', 'Faqat ofis mebeli', 'Tabiiy, tarixiy yoki madaniy diqqatga sazovorlik', 'Faqat reklama shiori'], 2]
+        ]
+      }
+    };
+
+    const quoteBank = { uz: '“Bilim — insonning eng katta boyligi.”', ru: '«Знание — величайшее богатство человека.»', en: '“Knowledge is the greatest wealth a person can have.”' }; 
+    let currentQuote = 'uz', student = JSON.parse(localStorage.getItem('uq_student') || 'null'), students = JSON.parse(localStorage.getItem('uq_students') || '[]'), scores = JSON.parse(localStorage.getItem('uq_scores') || '{}'), settings = JSON.parse(localStorage.getItem('uq_settings') || '{"minutes":20,"limit":100, "activeSubjects":["philosophy","tourism"]}'); 
+    
+    if (!settings.activeSubjects) {
+      settings.activeSubjects = ['philosophy', 'tourism'];
+    }
+
+    let quizTimer = null, remaining = 0, activeSubject = ''; 
+
+    const $ = id => document.getElementById(id); 
+
+    function saveAll() { 
+      localStorage.setItem('uq_student', JSON.stringify(student)); 
+      localStorage.setItem('uq_students', JSON.stringify(students)); 
+      localStorage.setItem('uq_scores', JSON.stringify(scores)); 
+      localStorage.setItem('uq_settings', JSON.stringify(settings)); 
+    } 
+
+    function level(score) { return score >= 80 ? 'Usta' : score >= 50 ? 'Bilimdon' : score >= 20 ? 'Izlanuvchi' : 'Boshlovchi' } 
+    function totalScore(name) { return scores[name] || 0 } 
+
+    function updateStats() { 
+      $('statStudents').textContent = students.length + '/' + settings.limit; 
+      $('statRank').textContent = student ? level(totalScore(student.name)) : '—'; 
+      $('studentBadge').textContent = student ? student.name : 'Mehmon'; 
+      $('statTests').textContent = Object.values(subjects).reduce((a, s) => a + s.qs.length, 0);
+    } 
+
+    function subjectCard(key) { 
+      let s = subjects[key]; 
+      return `<div class="card"><div class="subject-icon">${s.icon}</div><h3>${s.name}</h3><p>${s.desc}</p><span class="tag">${s.qs.length} ta test · 10 savolli krossvord</span><div class="actions"><button class="primary" onclick="startQuiz('${key}')">Testni boshlash</button><button class="secondary" onclick="openCross('${key}')">Krossvord</button></div></div>` 
+    } 
+
+    function renderSubjects() { 
+      let activeKeys = settings.activeSubjects || Object.keys(subjects);
+      let htmlCards = activeKeys.map(subjectCard).join('');
+      if (!htmlCards) {
+        htmlCards = '<div class="sub">Hozircha admin tomonidan hech qanday fan faollashtirilmagan.</div>';
+      }
+
+      if ($('homeSubjects')) $('homeSubjects').innerHTML = htmlCards; 
+      if ($('allSubjects')) $('allSubjects').innerHTML = htmlCards;
+
+      let duelSelect = $('duelSubject');
+      if (duelSelect) {
+        duelSelect.innerHTML = activeKeys.map(k => `<option value="${k}">${subjects[k].name}</option>`).join('');
+      }
+    } 
+
+    function showPage(name) { 
+      document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === name)); 
+      document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('active', b.dataset.page === name)); 
+      if (name === 'profile') fillProfile(); 
+      if (name === 'leaderboard') renderLeaderboard(); 
+      if (name === 'admin' && sessionStorage.getItem('uq_admin') === 'yes') showAdminTools(); 
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } 
+
+    document.querySelectorAll('#nav button').forEach(b => b.addEventListener('click', () => showPage(b.dataset.page))); 
+
+    function setQuote(lang) { currentQuote = lang; if($('quoteText')) $('quoteText').textContent = quoteBank[lang]; } 
+
+    function fillProfile() { 
+      if (student) { 
+        $('studentName').value = student.name; 
+        $('studentGroup').value = student.group; 
+        $('profileMsg').textContent = 'Profil saqlangan.'; 
+      } else { 
+        $('studentName').value = ''; 
+        $('studentGroup').value = ''; 
+        $('profileMsg').textContent = 'Ism va guruhni kiriting.'; 
+      } 
+    } 
+
+    const profileForm = $('profileForm');
+    if(profileForm) {
+      profileForm.addEventListener('submit', async e => { 
+        e.preventDefault(); 
+        let name = $('studentName').value.trim(), group = $('studentGroup').value.trim(); 
+        if (!name || !group) return; 
+
+        student = { name, group }; 
+        if (!students.some(x => x.name === name)) students.push({ name, group }); 
+        saveAll(); 
+        updateStats(); 
+
+        if (dbClient) {
+          await dbClient.from('students').upsert({ name: name, group_name: group }, { onConflict: 'name' });
+        }
+
+        $('profileMsg').textContent = 'Profil saqlandi va markaziy bazaga yuborildi. Xush kelibsiz, ' + name + '!'; 
+      }); 
+    }
+
+    function clearProfile() { student = null; localStorage.removeItem('uq_student'); fillProfile(); updateStats(); } 
+
+    function startQuiz(key) { 
+      if (!student) { 
+        showPage('profile'); 
+        $('profileMsg').textContent = 'Testni boshlash uchun avval ism va guruhingizni kiriting.'; 
+        return; 
+      } 
+      activeSubject = key; 
+      $('quizPanel').style.display = 'block'; 
+      $('crossPanel').style.display = 'none'; 
+      $('quizTitle').textContent = subjects[key].name + ' — test'; 
+      $('quizSub').textContent = subjects[key].qs.length + ' ta savol'; 
+      $('quizResult').innerHTML = ''; 
+      $('questions').innerHTML = subjects[key].qs.map((q, i) => `<div class="qrow"><h4>${i + 1}. ${q[0]}</h4>${q[1].map((a, j) => `<label class="option"><input type="radio" name="q${i}" value="${j}"> ${a}</label>`).join('')}</div>`).join(''); 
+      remaining = (settings.minutes || 20) * 60; 
+      tick(); 
+      clearInterval(quizTimer); 
+      quizTimer = setInterval(tick, 1000); 
+      $('quizPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } 
+
+    function tick() { 
+      let m = Math.floor(remaining / 60), s = remaining % 60; 
+      if($('timer')) $('timer').textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0'); 
+      if (remaining <= 0) { clearInterval(quizTimer); submitQuiz(true); } else remaining--;
+    } 
+
+    function closeQuiz() { clearInterval(quizTimer); $('quizPanel').style.display = 'none'; } 
+
+    async function submitQuiz(auto = false) { 
+      if (!$('quizPanel') || $('quizPanel').style.display === 'none') return; 
+      clearInterval(quizTimer); 
+
+      let qs = subjects[activeSubject].qs, correct = 0; 
+      qs.forEach((q, i) => { 
+        let a = document.querySelector(`input[name="q${i}"]:checked`); 
+        if (a && Number(a.value) === q[2]) correct++;
+      }); 
+
+      let percent = Math.round(correct / qs.length * 100); 
+      let newScore = Math.min(100, (scores[student.name] || 0) + percent);
+      scores[student.name] = newScore; 
+      saveAll(); 
+      updateStats(); 
+
+      if (dbClient) {
+        try {
+          await dbClient.from('leaderboard').upsert({
+            student_name: student.name,
+            group_name: student.group,
+            score: newScore,
+            updated_at: new Date()
+          }, { onConflict: 'student_name' });
+        } catch(err) {
+          console.error("Supabase saqlash xatosi:", err);
+        }
+      }
+
+      renderLeaderboard(); 
+      $('quizResult').innerHTML = `<div class="notice" style="margin-top:18px">${auto ? 'Vaqt tugadi. ' : ''}Natija: <b>${correct}/${qs.length}</b> (${percent}%). Natijangiz markaziy ekranga yuborildi!</div>`; 
+    } 
+
+    const quizForm = $('quizForm');
+    if(quizForm) {
+      quizForm.addEventListener('submit', e => { e.preventDefault(); submitQuiz(false); });
+    }
+
+    async function renderLeaderboard() { 
+      if(!$('leaderRows')) return;
+      $('leaderRows').innerHTML = '<tr><td colspan="5">Baza bilan bog‘lanilmoqda...</td></tr>';
+      let arr = [];
+
+      if (dbClient) {
+        let { data, error } = await dbClient.from('leaderboard').select('*').order('score', { ascending: false });
+        if (!error && data && data.length > 0) {
+          arr = data.map(item => ({ name: item.student_name, group: item.group_name, score: item.score }));
+        }
+      }
+
+      if (arr.length === 0) {
+        arr = students.map(s => ({ name: s.name, group: s.group, score: totalScore(s.name) })).sort((a, b) => b.score - a.score);
+      }
+
+      $('leaderRows').innerHTML = arr.length ? arr.map((s, i) => `<tr><td>${i + 1}</td><td><b>${s.name}</b>${student && student.name === s.name ? ' <span class="tag">Siz</span>' : ''}</td><td>${s.group}</td><td><b style="color:var(--purple);font-size:1.1rem">${s.score}</b></td><td>${level(s.score)}</td></tr>`).join('') : '<tr><td colspan="5">Hali hech kim test ishlamadi.</td></tr>';
+    } 
+
+    function makeMainQR() { 
+      let url = $('siteUrl').value.trim(); 
+      if (!url) { $('mainQr').textContent = 'Avval URL manzilini kiriting.'; return; } 
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'https://' + url;
+      }
+      $('mainQr').innerHTML = ''; 
+      new QRCode($('mainQr'), { 
+        text: url, 
+        width: 160, 
+        height: 160,
+        correctLevel: QRCode.CorrectLevel.H
+      }); 
+    } 
+
+    function checkMainDeviceUI() {
+      let isMain = localStorage.getItem('uq_is_main_device') === 'yes';
+      let btn = $('mainDeviceBtn');
+      let status = $('mainDeviceStatus');
+      if (btn && status) {
+        if (isMain) {
+          btn.textContent = '⭐ Ushbu qurilma - Asosiy admin';
+          btn.style.background = '#e8dfff';
+          btn.style.borderColor = '#b8a2f5';
+          status.textContent = 'Bu qurilma boshqa qurilmalardan kelgan so‘rovlarni qabul qiladi.';
+        } else {
+          btn.textContent = '⚙️ Ushbu qurilmani asosiy admin qilish';
+          btn.style.background = '#fff';
+          btn.style.borderColor = 'var(--line)';
+          status.textContent = 'Bu qurilma qo‘shimcha admin qurilmasi.';
+        }
+      }
+    }
+
+    function toggleMainDevice() {
+      let current = localStorage.getItem('uq_is_main_device') === 'yes';
+      if (current) {
+        if (confirm('Bu qurilmani asosiy admin maqomidan olasizmi?')) {
+          localStorage.setItem('uq_is_main_device', 'no');
+        }
+      } else {
+        localStorage.setItem('uq_is_main_device', 'yes');
+        alert('Ushbu qurilma Asosiy admin qurilmasi etib belgilandi!');
+      }
+      checkMainDeviceUI();
+    }
+
+    function initAdminRealtime() {
+      if (!dbClient) return;
+      adminChannel = dbClient.channel('admin_security');
+
+      adminChannel
+        .on('broadcast', { event: 'request_access' }, payload => {
+          let isMainDevice = localStorage.getItem('uq_is_main_device') === 'yes';
+          
+          if (isMainDevice && sessionStorage.getItem('uq_admin') === 'yes' && payload.deviceId !== myDeviceId) {
+            pendingRequestDevice = payload.deviceId;
+            showAccessModal(payload.deviceName || 'Noma‘lum qurilma');
+          }
+        })
+        .on('broadcast', { event: 'access_response' }, payload => {
+          if (payload.deviceId === myDeviceId) {
+            if (payload.allowed) {
+              sessionStorage.setItem('uq_admin', 'yes');
+              showAdminTools();
+              $('adminError').textContent = '';
+              alert("Asosiy admin kirishingizga ruxsat berdi!");
+            } else {
+              $('adminError').textContent = 'Asosiy admin kirishingizni rad etdi.';
+            }
+          }
+        })
+        .subscribe();
+    }
+
+    function showAccessModal(devName) {
+      if ($('adminReqModal')) return;
+      let modal = document.createElement('div');
+      modal.id = 'adminReqModal';
+      modal.style = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:grid;place-items:center;z-index:9999;';
+      modal.innerHTML = `
+        <div style="background:white;padding:24px;border-radius:20px;max-width:380px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.2)">
+          <h3 style="margin-top:0">🔐 Kirish so‘rovi</h3>
+          <p style="color:var(--muted)">Yangi qurilma Admin paneliga kirmoqchi (${devName}).<br>Ruxsat berasizmi?</p>
+          <div style="display:flex;gap:10px;justify-content:center;margin-top:20px;">
+            <button class="primary" onclick="respondAdminAccess(true)">Ruxsat berish</button>
+            <button class="secondary" onclick="respondAdminAccess(false)">Rad etish</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    function respondAdminAccess(allowed) {
+      if (adminChannel && pendingRequestDevice) {
+        adminChannel.send({
+          type: 'broadcast',
+          event: 'access_response',
+          payload: { deviceId: pendingRequestDevice, allowed: allowed }
+        });
+      }
+      let modal = $('adminReqModal');
+      if (modal) modal.remove();
+    }
+
+    function showAdminTools() { 
+      $('adminLogin').classList.add('hidden'); 
+      $('adminTools').classList.remove('hidden'); 
+      $('settingMinutes').value = settings.minutes; 
+      $('settingLimit').value = settings.limit; 
+      checkMainDeviceUI(); 
+      renderAdminSubjectToggles();
+      $('adminStudents').innerHTML = students.map(s => `<tr><td>${s.name}</td><td>${s.group}</td><td>${totalScore(s.name)}</td><td><button class="soft" onclick="removeStudent('${s.name.replace(/'/g, "\\'")}')">O‘chirish</button></td></tr>`).join('') || '<tr><td colspan="4">Ro‘yxat bo‘sh</td></tr>';
+    } 
+
+    function renderAdminSubjectToggles() {
+      let container = $('adminSubjectToggles');
+      if (!container) return;
+      let activeSubs = settings.activeSubjects || [];
+      container.innerHTML = Object.keys(subjects).map(k => `
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600;">
+          <input type="checkbox" class="sub-toggle" value="${k}" ${activeSubs.includes(k) ? 'checked' : ''} style="accent-color: #8062d8; width: 18px; height: 18px;">
+          <span>${subjects[k].icon} ${subjects[k].name}</span>
+        </label>
+      `).join('');
+    }
+
+    function saveSubjectSettings() {
+      let checkboxes = document.querySelectorAll('.sub-toggle');
+      let selected = [];
+      checkboxes.forEach(cb => {
+        if (cb.checked) selected.push(cb.value);
+      });
+      settings.activeSubjects = selected;
+      saveAll();
+      renderSubjects();
+      $('subjectMsg').textContent = 'Fanlar ro‘yxati yangilandi va talabalar uchun tatbiq etildi!';
+    }
+
+    // TOG'RILANGAN ADMIN KIRISH KODI:
+    const adminForm = $('adminForm');
+    if(adminForm) {
+      adminForm.addEventListener('submit', e => { 
+        e.preventDefault(); 
+        if ($('adminPassword').value === 'Lavanda2026!') { 
+          // Parol to'g'ri bo'lsa, to'g'ridan-to'g'ri kirgazadi
+          sessionStorage.setItem('uq_admin', 'yes');
+          showAdminTools();
+          $('adminError').textContent = '';
+        } else {
+          $('adminError').textContent = 'Parol noto‘g‘ri.';
+        }
+      });
+    }
+
+    function saveSettings() { 
+      settings.minutes = Math.max(1, Math.min(180, Number($('settingMinutes').value) || 20)); 
+      settings.limit = Math.max(1, Number($('settingLimit').value) || 100); 
+      saveAll(); 
+      updateStats(); 
+      $('settingsMsg').textContent = 'Sozlamalar saqlandi.'; 
+    } 
+
+    function removeStudent(name) { students = students.filter(s => s.name !== name); saveAll(); showAdminTools(); updateStats(); renderLeaderboard(); } 
+    function resetScores() { if (confirm('Barcha ballarni tozalaysizmi?')) { scores = {}; saveAll(); showAdminTools(); renderLeaderboard(); updateStats(); } } 
+    function exportData() { 
+      let data = { students, scores, settings }; 
+      let blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), a = document.createElement('a'); 
+      a.href = URL.createObjectURL(blob); 
+      a.download = 'UniQuiz-data.json'; 
+      a.click(); 
+    } 
+
+    window.showPage = showPage;
+    window.startQuiz = startQuiz;
+    window.openCross = key => {
+      activeSubject = key; 
+      $('crossPanel').style.display = 'block'; 
+      $('quizPanel').style.display = 'none'; 
+      if($('crossTitle')) $('crossTitle').textContent = subjects[key].name + ' — krossvord'; 
+    };
+    window.makeMainQR = makeMainQR;
+    window.renderLeaderboard = renderLeaderboard;
+    window.clearProfile = clearProfile;
+    window.saveSettings = saveSettings;
+    window.saveSubjectSettings = saveSubjectSettings;
+    window.removeStudent = removeStudent;
+    window.resetScores = resetScores;
+    window.exportData = exportData;
+    window.setQuote = setQuote;
+    window.closeQuiz = closeQuiz;
+    window.respondAdminAccess = respondAdminAccess;
+    window.toggleMainDevice = toggleMainDevice;
+    window.checkCrossword = () => { if($('crossResult')) $('crossResult').textContent = 'Krossvord tekshirildi.'; };
+
+    function init() { 
+      renderSubjects(); 
+      updateStats(); 
+      renderLeaderboard(); 
+      setQuote('uz'); 
+      initAdminRealtime();
+      if (student) fillProfile(); 
+    } 
+
+    init();
+  </script>
+</body>
+
+</html>
